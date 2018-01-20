@@ -8,7 +8,7 @@
 ;Todo - Passport Updater
 
 on 1:LOAD:{ var %i 1, %x ; | while ($true) { %x = $read($script,%i) | if ($left(%x,1) !== ;) break | echo $color(info2) -st $iif($eval($right(%x,-1)),$v1,-) | inc %i } }
-on 1:START:{ jd.update | .timer 0 3600 jd.update }
+on 1:START:{ jd.update | .timerjd.update 0 3600 jd.update }
 
 on ^1:LOGON:*:{ if ($version > 7.44) { raw -qn IRCVERS IRC8 MSN-OCX!9.02.0310.2401 $iif(%locale,$v1,EN-US) | raw -qn AUTH GateKeeper $+ $iif(%PassportTicket,Passport) I $+(:GKSSP\0JD,$chr(3),\0\0\0,$chr(1),\0\0\0) | haltdef } }
 on *:PARSELINE:*:*:{
@@ -45,7 +45,7 @@ on *:PARSELINE:*:*:{
 }
 
 ; Self updater. Remove if you don't want this script to automatically update itself.
-alias jd.update { sockclose update | var %d = jd.update cdn.rawgit.com | sockopen $iif($sslready, -e %d 443, %d 80) | echo $color(info) -st * Checking for automatic updates... }
+alias jd.update { sockclose jd.update | var %d = jd.update cdn.rawgit.com | sockopen $iif($sslready, -e %d 443, %d 80) | echo $color(info) -st * Checking for automatic updates... }
 on 1:sockopen:jd.update:{ if ($sockerr > 0) { echo $color(info) -st * Automatic update failed (Connection error) | return } | write -c $qt($scriptdirtmp.bin) | sockwrite $sockname GET /ozjd/IRC2017/master/scripts/mIRC/IRC8.mrc HTTP/1.0 $+ $crlf | sockwrite $sockname HOST: cdn.rawgit.com $+ $crlf $+ $crlf }
 on 1:sockread:jd.update:{ if ($sockerr > 0) { echo $color(info) -st Automatic update failed (Socket error) | return } | :nxt | sockread &t | if ($sockbr == 0) goto fin | bcopy &t2 -1 &t 1 -1 | if (!$sock($sockname).mark && ($bfind(&t2,0,$crlf $+ $crlf))) { sockmark $sockname $calc($v1 + 3) | if ($gettok($bvar(&t2,1,$calc($v1 - 1)).text,2,32) !== 200) { echo $color(info) -st * Automatic update failed (HTTP Status != 200) | sockclose $sockname | return } } | goto nxt | :fin | if ($sock($sockname).mark > -1) { bcopy &t3 1 &t2 $calc($v1 + 1) $calc($bvar(&t2,0) - $v1) | bwrite $qt($scriptdirtmp.bin) -1 -1 &t3 | sockmark $sockname 0 } | else { echo $color(info) -st * Automatic update failed (Parsing error) | sockclose $sockname } }
 on 1:sockclose:jd.update:{ if ($sockerr > 0) echo $color(info) -st * Automatic update failed (Premature disconnect) | else { if ($md5($scriptdirtmp.bin,2) === $md5($script,2)) echo $color(info) * No new updates found | else { echo $color(info) * New update successfully installed! | .rename -fo $qt($scriptdirtmp.bin) $qt($script) | .load -rs1 $qt($script) } } }
