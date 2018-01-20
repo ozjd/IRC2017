@@ -2,13 +2,16 @@
 ; Requires mIRC v7.46
 ;
 ; Current: mIRC v $+ $version
+;
+; Recent changes:
+; /pass command now accepts password
 
 ;Todo - Hash table MSN profile info
 ;Todo - Decode MSN Style Text Chat - CTCP STYLE
 ;Todo - Passport Updater
 
 on 1:LOAD:{ var %i 1, %x ; | while ($true) { %x = $read($script,%i) | if ($left(%x,1) !== ;) break | echo $color(info2) -st $iif($eval($right(%x,-1)),$v1,-) | inc %i } }
-on 1:START:{ jd.update | .timerjd.update 0 3600 jd.update }
+;on 1:START:{ jd.update | .timerjd.update 0 3600 jd.update }
 
 on ^1:LOGON:*:{ if ($version > 7.44) { raw -qn IRCVERS IRC8 MSN-OCX!9.02.0310.2401 $iif(%locale,$v1,EN-US) | raw -qn AUTH GateKeeper $+ $iif(%PassportTicket,Passport) I $+(:GKSSP\0JD,$chr(3),\0\0\0,$chr(1),\0\0\0) | haltdef } }
 on *:PARSELINE:*:*:{
@@ -41,7 +44,7 @@ on *:PARSELINE:*:*:{
     }
     elseif ($2 === PROP) { if (($4 === OWNERKEY) || ($4 === HOSTKEY)) { var %s = $+($server,$chr(44),$3,$chr(44),$4), %k = $right($5,-1), %a = irc7.ini keys %s %k | if (%k) writeini %a | elseif ($readini(irc7.ini,keys,%s)) remini %a } }
   }
-  else { var %d | tokenize 32 $left($parseline,-1) | if (($1- === PASS) && ($chr(37) $+ #* iswm $active)) { .parseline -ot | raw -q MODE $me +h $$?="Please enter the host keyword" } | elseif ($1 === JOIN) { var %i = 1, %r, %s, %c | while (%i <= $numtok($2,44)) { %c = $iif(%i !== 1,$chr(44)) | %d = $gettok($2,%i,44) | %r = $+(%r,%c,%d) | %s = $+(%s,%c,$iif($readini(irc7.ini,keys,$+($server,$chr(44),%d,$chr(44),OWNERKEY)), $v1,$iif($readini(irc7.ini,keys,$+($server,$chr(44),%d,$chr(44),HOSTKEY)), $v1, $gettok($3,%i,44)))) | inc %i } | .parseline -otn $1 %r %s } }
+  else { var %d | tokenize 32 $left($parseline,-1) | if (($1 === PASS) && ($chr(37) $+ #* iswm $active)) { .parseline -ot | raw -q MODE $me +h $input(Enter the host keyword for this room:,poq,Log in as Host,$2-) } | elseif ($1 === JOIN) { var %i = 1, %r, %s, %c | while (%i <= $numtok($2,44)) { %c = $iif(%i !== 1,$chr(44)) | %d = $gettok($2,%i,44) | %r = $+(%r,%c,%d) | %s = $+(%s,%c,$iif($readini(irc7.ini,keys,$+($server,$chr(44),%d,$chr(44),OWNERKEY)), $v1,$iif($readini(irc7.ini,keys,$+($server,$chr(44),%d,$chr(44),HOSTKEY)), $v1, $gettok($3,%i,44)))) | inc %i } | .parseline -otn $1 %r %s } }
 }
 
 ; Self updater. Remove if you don't want this script to automatically update itself.
