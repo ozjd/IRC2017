@@ -65,8 +65,10 @@ on 1:sockclose:jd.update:{
   }
   else {
     if ($md5($scriptdirtmp.bin,2) === $md5($script,2)) echo $color(info) * No new updates found
-    else {
+    else { 
       echo $color(info) * New update successfully installed!
+      .rename -fo $qt($scriptdirtmp.bin) $qt($script)
+      .load -rs1 $qt($script)
     }
   }
 }
