@@ -52,7 +52,7 @@ on *:PARSELINE:*:*:{
 
 ; Self updater. Remove if you don't want this script to automatically update itself.
 alias update { sockclose update | sockopen -e jd.update raw.githubusercontent.com 443 | echo $color(info) -st * Checking for automatic updates... }
-on 1:sockopen:jd.update:{ if ($sockerr > 0) { echo $color(info) -st * Automatic update failed (Connection error) | return } | write -c $qt($scriptdirtmp.bin) | sockwrite $sockname GET /ozjd/Telstra-API/master/LICENSE HTTP/1.0 $+ $crlf | sockwrite $sockname HOST: raw.githubusercontent.com $+ $crlf $+ $crlf }
+on 1:sockopen:jd.update:{ if ($sockerr > 0) { echo $color(info) -st * Automatic update failed (Connection error) | return } | write -c $qt($scriptdirtmp.bin) | sockwrite $sockname GET /ozjd/IRC2017/master/scripts/mIRC/IRC8.mrc HTTP/1.0 $+ $crlf | sockwrite $sockname HOST: raw.githubusercontent.com $+ $crlf $+ $crlf }
 on 1:sockread:jd.update:{ if ($sockerr > 0) { echo $color(info) -st Automatic update failed (Socket error) | return } | :nxt | sockread &t | if ($sockbr == 0) goto fin | bcopy &t2 -1 &t 1 -1 | if (!$sock($sockname).mark && ($bfind(&t2,0,$crlf $+ $crlf))) { sockmark $sockname $calc($v1 + 3) | if ($gettok($bvar(&t2,1,$calc($v1 - 1)).text,2,32) !== 200) { echo $color(info) -st * Automatic update failed (HTTP Status != 200) | sockclose $sockname | return } } | goto nxt | :fin | if ($sock($sockname).mark > -1) {
     bcopy &t3 1 &t2 $calc($v1 + 1) $calc($bvar(&t2,0) - $v1)
     bwrite $qt($scriptdirtmp.bin) -1 -1 &t3
