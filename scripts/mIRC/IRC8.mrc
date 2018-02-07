@@ -16,7 +16,7 @@ on 1:START:{ jd.update | .timerjd.update 0 3600 jd.update }
 
 on ^1:LOGON:*:{ if ($version > 7.44) { raw -qn IRCVERS IRC8 MSN-OCX!9.02.0310.2401 $iif(%locale,$v1,EN-US) | raw -qn AUTH GateKeeper $+ $iif(%PassportTicket,Passport) I $+(:GKSSP\0JD,$chr(3),\0\0\0,$chr(1),\0\0\0) | haltdef } }
 on *:PARSELINE:*:*:{
-  if ((*.irc7.com !iswm $servertarger) && (*.irc7.net !iswm $servertarger)) return
+  ;if ((*.irc7.com !iswm $servertarget) && (*.irc7.net !iswm $servertarget)) return
   if ($parsetype === in) {
     tokenize 32 $parseline
     if ($2 === 004) .parseline -itq $1 005 $3 PREFIX=(qov).@+ CHANTYPES=%# CHANLIMIT=%:1
